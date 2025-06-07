@@ -16,7 +16,8 @@ const errorHandler = (err, req, res, next) => {
     let message;
     // Add product without data
     if (err.name === "ValidationError") {
-      message = "Validation Error , Enter valid and complete data";
+      errrorMessages = Object.values(err.errors).map((value) => value.message);
+      message = errrorMessages.join(", ");
     } else if (err.code === 11000) {
       message = `Duplicate ${Object.keys(err.keyValue)} Entered`;
     } else if (err.name === "JsonWebTokenError") {

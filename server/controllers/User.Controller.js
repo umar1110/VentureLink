@@ -13,10 +13,7 @@ exports.registerUser = asyncHandler(async (req, res) => {
   }
   console.log(req.file);
 
-  const { name, email, password, role } = req.body;
-  if (!name || !email || !password || !role) {
-    throw new ApiError(400, "Please enter all fields");
-  }
+  const { fullName, email, password, role } = req.body;
 
   const isExisted = await User.findOne({ email: email });
   if (isExisted) {
@@ -24,7 +21,7 @@ exports.registerUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
-    name,
+    fullName,
     email,
     password,
     role,
