@@ -65,3 +65,24 @@ exports.getMe = asyncHandler(async (req, res, next) => {
     user,
   });
 });
+
+// Login User
+exports.loginUser = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    throw new ApiError(400, "Please enter all fields");
+  }
+  const user = await User.findOne({ email: email }).select("+password");
+
+  if (!user) {
+    throw new ApiError(400, "Invalid Email or Password"); // 401 = unauthorized
+  }
+
+  const isPasswordMatched = await user.comparePassword(password);
+
+  if (!isPasswordMatched) {
+    throw new ApiError(400, "Invalid Email or Password");
+  }
+
+  sendToken(user, 200, res);
+});

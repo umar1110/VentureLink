@@ -1,16 +1,18 @@
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { useAuth } from "../contexts/AuthContext";
+import { LoginUser } from "../redux/slices/authSlice";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth); // Assuming you have an auth slice in Redux
-  const { login, error } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -25,11 +27,12 @@ export const LoginPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      await login(data.email, data.password);
-
-      // Determine redirect based on user role, will be handled in the auth context
-      // For now, navigate to home page
-      navigate("/");
+      dispatch(
+        LoginUser({
+          email: data.email,
+          password: data.password,
+        })
+      );
     } catch (err) {
       console.error("Login error:", err);
     }
@@ -65,15 +68,6 @@ export const LoginPage = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {error && (
-            <div
-              className="mb-4 bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded relative"
-              role="alert"
-            >
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
-
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <Input
               label="Email Address"

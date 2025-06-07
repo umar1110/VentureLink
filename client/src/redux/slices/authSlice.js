@@ -8,7 +8,7 @@ export const LoginUser = createAsyncThunk(
     try {
       toast.loading("Logging in...");
       const response = await axios.post(
-        "http://localhost:4000/api/v1/users/login",
+        "http://localhost:4000/api/v1/user/login",
         {
           email,
           password,
