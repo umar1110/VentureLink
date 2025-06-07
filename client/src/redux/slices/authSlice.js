@@ -33,37 +33,35 @@ export const LoginUser = createAsyncThunk(
   }
 );
 
-export const SignupUser = createAsyncThunk(
-  "signup",
-  async ({ email, password, firstName, lastName }) => {
-    try {
-      toast.loading("Signing up...");
-      const response = await axios.post(
-        "http://localhost:4000/api/v1/users/register",
-        {
-          email,
-          name: `${firstName} ${lastName}`,
-          password,
+export const SignupUser = createAsyncThunk("signup", async (formData) => {
+  try {
+    toast.loading("Signing up...");
+    const response = await axios.post(
+      "http://localhost:4000/api/v1/user/register",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-        { withCredentials: true }
-      );
-      console.log(response.data.data);
-      toast.dismiss();
-      toast.success("Signup successful");
-      return response.data.data;
-    } catch (error) {
-      if (error?.response?.data?.message) {
-        toast.dismiss();
-        toast.error(error.response.data.message);
-        throw new Error(error.response.data.message);
-      } else {
-        toast.dismiss();
-        toast.error("Signup failed " + error.message);
-        throw new Error(`Signup failed: , ${error.message}`);
+        withCredentials: true,
       }
+    );
+    console.log(response.data.data);
+    toast.dismiss();
+    toast.success("Signup successful");
+    return response.data.data;
+  } catch (error) {
+    if (error?.response?.data?.message) {
+      toast.dismiss();
+      toast.error(error.response.data.message);
+      throw new Error(error.response.data.message);
+    } else {
+      toast.dismiss();
+      toast.error("Signup failed " + error.message);
+      throw new Error(`Signup failed: , ${error.message}`);
     }
   }
-);
+});
 
 export const fetchMe = createAsyncThunk("fetchUser", async () => {
   try {

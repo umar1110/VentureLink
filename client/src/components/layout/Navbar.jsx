@@ -30,9 +30,7 @@ export const Navbar = () => {
   };
 
   const dashboardLink =
-    user?.role === "entrepreneur"
-      ? "/entrepreneur-dashboard"
-      : "/investor-dashboard";
+    user?.role === 0 ? "/entrepreneur-dashboard" : "/investor-dashboard";
 
   return (
     <nav className="bg-white shadow-md">
@@ -112,10 +110,11 @@ export const Navbar = () => {
                   >
                     <span className="sr-only">Open user menu</span>
                     <div className="flex items-center">
-                      {user?.avatar ? (
+                      {user?.profilePicture?.url ? (
                         <img
-                          className="h-8 w-8 rounded-full"
-                          src={user.avatar}
+                          className="h-8 w-8 rounded-full object-cover"
+                          loading="lazy"
+                          src={user.profilePicture.url}
                           alt="User avatar"
                         />
                       ) : (

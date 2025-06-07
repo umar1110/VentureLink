@@ -8,10 +8,12 @@ const {
   deletFilesFromCloudinary,
 } = require("../utils/uploadFilesToCloudinary.js");
 exports.registerUser = asyncHandler(async (req, res) => {
+  console.log("Registering user...");
+
+  console.log(req.body);
   if (!req.file) {
     throw new ApiError(400, "Please upload a profile picture");
   }
-  console.log(req.file);
 
   const { fullName, email, password, role } = req.body;
 
@@ -20,15 +22,18 @@ exports.registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User already exists with this email.");
   }
 
+  const profilePictureUpload = await uploadFilesToCloudinary([req.file]);
+
+  const profilePicture = {
+    public_id: profilePictureUpload[0].public_id,
+    url: profilePictureUpload[0].url,
+  };
   const user = await User.create({
     fullName,
     email,
     password,
     role,
-    profilePicture: {
-      public_id: "profilePicture.public_id",
-      url: "profilePicture.url",
-    },
+    profilePicture,
   });
 
   sendToken(user, 201, res);

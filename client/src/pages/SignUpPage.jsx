@@ -1,17 +1,21 @@
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { useAuth } from "../contexts/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { SignupUser } from "../redux/slices/authSlice";
 
 export const SignUpPage = () => {
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const profilePictureRef = useRef(null);
   const [previewProfilePicture, setPreviewProfilePicture] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
-  const { register: registerUser, error } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -35,15 +39,18 @@ export const SignUpPage = () => {
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
-      formData.append("name", data.name);
+      formData.append("fullName", data.name);
       formData.append("email", data.email);
       formData.append("password", data.password);
-      formData.append("role", data.role);
+      formData.append(
+        "role",
+        data.role === "entrepreneur" ? 0 : 1 // from Backend constants
+      );
       if (profilePicture) {
         formData.append("profilePicture", profilePicture);
       }
 
-      await registerUser(formData);
+      dispatch(SignupUser(formData));
 
       // Redirect to dashboard based on role
       if (data.role === "entrepreneur") {
@@ -55,6 +62,18 @@ export const SignUpPage = () => {
       console.error("Sign up error:", err);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Redirect to dashboard based on role
+      const userRole = user?.role; // Assuming user object has a role property
+      if (userRole === 0) {
+        navigate("/entrepreneur-dashboard");
+      } else if (userRole === 1) {
+        navigate("/investor-dashboard");
+      }
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50">
@@ -75,15 +94,6 @@ export const SignUpPage = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {error && (
-            <div
-              className="mb-4 bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded relative"
-              role="alert"
-            >
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
-
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {/* Profile PIC */}
             <div
