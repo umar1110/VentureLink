@@ -36,7 +36,7 @@ export const SignUpPage = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = (data) => {
     try {
       const formData = new FormData();
       formData.append("fullName", data.name);
@@ -51,13 +51,6 @@ export const SignUpPage = () => {
       }
 
       dispatch(SignupUser(formData));
-
-      // Redirect to dashboard based on role
-      if (data.role === "entrepreneur") {
-        navigate("/entrepreneur-dashboard");
-      } else {
-        navigate("/investor-dashboard");
-      }
     } catch (err) {
       console.error("Sign up error:", err);
     }

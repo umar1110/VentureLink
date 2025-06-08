@@ -22,6 +22,8 @@ import { IdeaDetailsPage } from "./pages/IdeaDetailsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { useDispatch } from "react-redux";
 import { fetchMe } from "./redux/slices/authSlice";
+import DiscoverIdeas from "./pages/InvesterDashbord/DiscoverIdeas";
+import Profile from "./pages/InvesterDashbord/ProfilePage";
 
 function App() {
   const dispatch = useDispatch();
@@ -50,7 +52,10 @@ function App() {
               <Route
                 path="/investor-dashboard"
                 element={<InvestorDashboardPage />}
-              />
+              >
+                <Route path="" element={<DiscoverIdeas />} />
+                <Route path="profile" element={<Profile />} />
+              </Route>
               <Route path="/ranked-ideas" element={<RankedIdeasPage />} />
               <Route path="/ideas/:id" element={<IdeaDetailsPage />} />
               <Route path="*" element={<NotFoundPage />} />
