@@ -20,19 +20,35 @@ import { InvestorDashboardPage } from "./pages/InvestorDashboardPage";
 import { RankedIdeasPage } from "./pages/RankedIdeasPage";
 import { IdeaDetailsPage } from "./pages/IdeaDetailsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchMe } from "./redux/slices/authSlice";
 import DiscoverIdeas from "./pages/InvesterDashbord/DiscoverIdeas";
 import Profile from "./pages/InvesterDashbord/ProfilePage";
 import MyIdeas from "./pages/Enterpreneur Dashboard/MyIdeas";
 import MessagesPage from "./pages/Enterpreneur Dashboard/Messages";
+import { socket } from "./socket";
 
 function App() {
   const dispatch = useDispatch();
 
+  const { user } = useSelector((state) => state.auth);
   useEffect(() => {
     dispatch(fetchMe());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (user?._id) {
+      // socket.connect(); // 🔌 Connect socket
+      prompt("Please enter your name:"); // Prompt for user name
+      socket.emit("addUser", user._id); // 👤 Register as online
+    }
+
+    return () => {
+      if (socket.connected) {
+        socket.disconnect(); // cleanup on unmount or logout
+      }
+    };
+  }, [user?._id]);
   return (
     <AuthProvider>
       <Router>

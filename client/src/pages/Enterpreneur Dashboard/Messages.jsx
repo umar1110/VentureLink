@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { io } from "socket.io-client";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
-const socket = io("http://localhost:4000");
+import { io } from "socket.io-client";
+import { socket } from "../../socket";
 
 const MessagesPage = () => {
   const { user } = useSelector((state) => state.auth);
@@ -17,10 +16,19 @@ const MessagesPage = () => {
   const [deliveredMap, setDeliveredMap] = useState({});
   const [showNewChat, setShowNewChat] = useState(false);
   const [newEmail, setNewEmail] = useState("");
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const scrollRef = useRef();
 
   useEffect(() => {
     socket.emit("addUser", currentUserId);
+
+    socket.on("getOnlineUsers", (users) => {
+      setOnlineUsers(users);
+    });
+
+    return () => {
+      socket.off("getOnlineUsers");
+    };
   }, [currentUserId]);
 
   useEffect(() => {
@@ -29,7 +37,6 @@ const MessagesPage = () => {
         `http://localhost:4000/api/v1/chats/${currentUserId}`,
         { withCredentials: true }
       );
-      console.log("Fetched Chats:", res.data.data);
       setChats(res.data.data);
     };
     fetchChats();
@@ -39,7 +46,6 @@ const MessagesPage = () => {
     const res = await axios.get(
       `http://localhost:4000/api/v1/messages/${chatId}`
     );
-    console.log("Fetched Messages:", res.data.data);
     setMessages(res.data.data);
   };
 
@@ -113,7 +119,6 @@ const MessagesPage = () => {
         },
         { withCredentials: true }
       );
-      console.log("Created Chat:", createRes.data.data);
       setChats((prev) => [...prev, createRes.data.data]);
       setShowNewChat(false);
       setNewEmail("");
@@ -123,6 +128,7 @@ const MessagesPage = () => {
   };
 
   useEffect(() => {
+    socket.connect();
     socket.on("receiveMessage", (data) => {
       if (data.chatId === selectedChat?._id) {
         setMessages((prev) => [...prev, data]);
@@ -166,7 +172,7 @@ const MessagesPage = () => {
   }, [messages]);
 
   return (
-    <div className="flex h-screen bg-gray-50 lg:col-span-3 ">
+    <div className="flex h-screen bg-gray-50 lg:col-span-3">
       <div className="w-1/3 border-r bg-white">
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-semibold">Messages</h2>
@@ -209,11 +215,16 @@ const MessagesPage = () => {
                   selectedChat?._id === chat._id ? "bg-gray-100" : ""
                 }`}
               >
-                <img
-                  src={partner.profilePicture?.url}
-                  alt="Profile"
-                  className="h-10 w-10 rounded-full object-cover"
-                />
+                <div className="relative">
+                  <img
+                    src={partner.profilePicture?.url}
+                    alt="Profile"
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                  {onlineUsers.includes(partner._id) && (
+                    <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></span>
+                  )}
+                </div>
                 <div className="ml-3">
                   <p className="font-medium text-gray-900">
                     {partner.fullName}
@@ -237,15 +248,20 @@ const MessagesPage = () => {
               );
               return (
                 <>
-                  <img
-                    src={partner.profilePicture?.url}
-                    alt="Chat User"
-                    className="h-10 w-10 rounded-full object-cover"
-                  />
+                  <div className="relative">
+                    <img
+                      src={partner.profilePicture?.url}
+                      alt="Chat User"
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                    {onlineUsers.includes(partner._id) && (
+                      <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></span>
+                    )}
+                  </div>
                   <div className="ml-3">
                     <p className="font-semibold">{partner.fullName}</p>
                     <p className="text-sm text-gray-500 capitalize">
-                      {partner.email}
+                      {onlineUsers.includes(partner._id) ? "Online" : "Offline"}
                     </p>
                   </div>
                 </>
@@ -274,11 +290,11 @@ const MessagesPage = () => {
                 <p className="text-xs text-right opacity-70 mt-1">
                   {new Date(msg.createdAt).toLocaleTimeString()}
                 </p>
-                {msg?.sender === currentUserId && (
+                {/* {msg?.sender === currentUserId && (
                   <p className="text-[10px] text-right text-white/80">
                     {deliveredMap[msg._id] ? "Delivered" : "Sending..."}
                   </p>
-                )}
+                )} */}
               </div>
             </div>
           ))}

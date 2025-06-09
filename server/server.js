@@ -25,18 +25,21 @@ const io = new Server(server, {
   },
 });
 
-let onlineUsers = new Map();
+const onlineUsers = new Map(); // Map<userId, socketId>
 
 io.on("connection", (socket) => {
   console.log("✅ Socket connected:", socket.id);
 
-  // Add user to online list
+  // ✅ Add user to online list and broadcast
   socket.on("addUser", (userId) => {
     onlineUsers.set(userId, socket.id);
     console.log("Online Users:", Array.from(onlineUsers.keys()));
+
+    // Send updated online user list to all clients
+    io.emit("getOnlineUsers", Array.from(onlineUsers.keys()));
   });
 
-  // Typing indicator
+  // 🟡 Typing indicator
   socket.on("typing", ({ chatId, senderId, receiverId }) => {
     const receiverSocketId = onlineUsers.get(receiverId);
     if (receiverSocketId) {
@@ -51,7 +54,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Send message with delivery status
+  // 📨 Send message with delivery status
   socket.on("sendMessage", ({ senderId, receiverId, text, chatId }) => {
     const receiverSocketId = onlineUsers.get(receiverId);
     const message = {
@@ -63,18 +66,17 @@ io.on("connection", (socket) => {
     };
 
     if (receiverSocketId) {
-      console.log(`Message from ${senderId} to ${receiverId}: ${text}`);
       io.to(receiverSocketId).emit("receiveMessage", message);
       message.delivered = true;
     } else {
       message.delivered = false;
     }
 
-    // Emit back to sender with delivery status
+    // Send delivery status back to sender
     socket.emit("messageDelivered", message);
   });
 
-  // Read receipt
+  // 👁️‍🗨️ Read receipt
   socket.on("messageRead", ({ chatId, senderId, receiverId }) => {
     const receiverSocketId = onlineUsers.get(receiverId);
     if (receiverSocketId) {
@@ -82,7 +84,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Handle disconnect
+  // ❌ Handle disconnect and update online list
   socket.on("disconnect", () => {
     console.log("❌ Socket disconnected:", socket.id);
     for (let [userId, sockId] of onlineUsers.entries()) {
@@ -91,6 +93,9 @@ io.on("connection", (socket) => {
         break;
       }
     }
+
+    // Notify all clients of updated online users
+    io.emit("getOnlineUsers", Array.from(onlineUsers.keys()));
   });
 });
 

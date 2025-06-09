@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-
+import { socket } from "../../socket";
 export const LoginUser = createAsyncThunk(
   "login",
   async ({ email, password }) => {
@@ -77,10 +77,12 @@ export const fetchMe = createAsyncThunk("fetchUser", async () => {
 
 export const logoutUser = createAsyncThunk("logout", async () => {
   try {
+    socket.disconnect();
     toast.loading("Logging out...");
     await axios.get("http://localhost:4000/api/v1/logout", {
       withCredentials: true,
     });
+
     toast.dismiss();
     toast.success("Logout successful");
     return true;
