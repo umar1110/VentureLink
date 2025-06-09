@@ -86,3 +86,46 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
 
   sendToken(user, 200, res);
 });
+
+// Update User Profile
+exports.updateUserProfile = asyncHandler(async (req, res, next) => {
+  const { fullName, password, id } = req.body;
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (req.file) {
+    const profilePictureUpload = await uploadFilesToCloudinary([req.file]);
+    // delete old profile picture if exists
+
+    if (user.profilePicture && user.profilePicture.public_id) {
+      await deletFilesFromCloudinary([user.profilePicture.public_id]);
+      console.log("Old profile picture deleted");
+    }
+    user.profilePicture = {
+      public_id: profilePictureUpload[0].public_id,
+      url: profilePictureUpload[0].url,
+    };
+  }
+
+  user.fullName = fullName || user.fullName;
+  if (password) {
+    if (await user.comparePassword(password)) {
+      throw new ApiError(
+        400,
+        "New password cannot be the same as old password"
+      );
+    }
+    user.password = password;
+  }
+
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Profile updated successfully",
+    user,
+  });
+});

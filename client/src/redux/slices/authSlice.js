@@ -91,6 +91,37 @@ export const logoutUser = createAsyncThunk("logout", async () => {
   }
 });
 
+export const updateUserProfile = createAsyncThunk(
+  "profile/update",
+  async (formData) => {
+    try {
+      toast.loading("Updating profile...");
+      const response = await axios.put(
+        "http://localhost:4000/api/v1/user/profile",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+      toast.dismiss();
+      toast.success("Profile updated successfully");
+      return response.data.user;
+    } catch (error) {
+      toast.dismiss();
+      if (error?.response?.data?.message) {
+        toast.error(error.response.data.message);
+        throw new Error(error.response.data.message);
+      } else {
+        toast.error("Profile update failed");
+        throw new Error(`Profile update failed: ${error.message}`);
+      }
+    }
+  }
+);
+
 // Slice for authentication
 export const authSlice = createSlice({
   name: "auth",
@@ -149,6 +180,16 @@ export const authSlice = createSlice({
         state.isAuthenticated = false;
       })
       .addCase(logoutUser.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateUserProfile.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateUserProfile.rejected, (state) => {
         state.loading = false;
       });
   },
