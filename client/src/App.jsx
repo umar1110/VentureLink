@@ -25,6 +25,7 @@ import { fetchMe } from "./redux/slices/authSlice";
 import DiscoverIdeas from "./pages/InvesterDashbord/DiscoverIdeas";
 import Profile from "./pages/InvesterDashbord/ProfilePage";
 import MyIdeas from "./pages/Enterpreneur Dashboard/MyIdeas";
+import MessagesPage from "./pages/Enterpreneur Dashboard/Messages";
 
 function App() {
   const dispatch = useDispatch();
@@ -52,6 +53,7 @@ function App() {
               >
                 <Route path="" element={<MyIdeas />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="messages" element={<MessagesPage />} />
               </Route>
               <Route
                 path="/investor-dashboard"
@@ -59,6 +61,7 @@ function App() {
               >
                 <Route path="" element={<DiscoverIdeas />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="messages" element={<MessagesPage />} />s{" "}
               </Route>
               <Route path="/ranked-ideas" element={<RankedIdeasPage />} />
               <Route path="/ideas/:id" element={<IdeaDetailsPage />} />

@@ -12,7 +12,6 @@ const isAuthenticatedUser = asyncHandler(async (req, res, next) => {
   const decodedDataID = jwt.verify(token, process.env.JWT_SECRET);
   try {
     user = await UserModel.findById(decodedDataID.id);
-    console.log("User authenticated:", user);
     if (!user) {
       throw new ApiError(401, "User Not Found, Please Login Again.");
     }

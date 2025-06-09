@@ -136,8 +136,8 @@ export const InvestorDashboardPage = () => {
                     <TrendingUp className="h-5 w-5 mr-3" />
                     <span className="text-sm">Discover Ideas</span>
                   </NavLink>
-                  <a
-                    href="#"
+                  <NavLink
+                    to="/investor-dashboard/messages"
                     className="flex items-center py-3 px-6 text-gray-600 hover:bg-gray-50 transition-colors"
                   >
                     <MessageSquare className="h-5 w-5 mr-3" />
@@ -145,7 +145,7 @@ export const InvestorDashboardPage = () => {
                     <span className="ml-auto bg-primary-100 text-primary-600 py-0.5 px-2 rounded-full text-xs font-medium">
                       5
                     </span>
-                  </a>
+                  </NavLink>
                   {/* <a
                     href="#"
                     className="flex items-center py-3 px-6 text-gray-600 hover:bg-gray-50 transition-colors"

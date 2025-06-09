@@ -25,18 +25,72 @@ const io = new Server(server, {
   },
 });
 
-// Handle socket connections
+let onlineUsers = new Map();
+
 io.on("connection", (socket) => {
-  console.log("New client connected");
+  console.log("✅ Socket connected:", socket.id);
 
-  socket.on("join", (userId) => {
-    console.log("User joined To Room", userId);
-
-    socket.join(`user_${userId}`);
+  // Add user to online list
+  socket.on("addUser", (userId) => {
+    onlineUsers.set(userId, socket.id);
+    console.log("Online Users:", Array.from(onlineUsers.keys()));
   });
 
+  // Typing indicator
+  socket.on("typing", ({ chatId, senderId, receiverId }) => {
+    const receiverSocketId = onlineUsers.get(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("typing", { chatId, senderId });
+    }
+  });
+
+  socket.on("stopTyping", ({ chatId, senderId, receiverId }) => {
+    const receiverSocketId = onlineUsers.get(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("stopTyping", { chatId, senderId });
+    }
+  });
+
+  // Send message with delivery status
+  socket.on("sendMessage", ({ senderId, receiverId, text, chatId }) => {
+    const receiverSocketId = onlineUsers.get(receiverId);
+    const message = {
+      senderId,
+      receiverId,
+      text,
+      chatId,
+      createdAt: new Date().toISOString(),
+    };
+
+    if (receiverSocketId) {
+      console.log(`Message from ${senderId} to ${receiverId}: ${text}`);
+      io.to(receiverSocketId).emit("receiveMessage", message);
+      message.delivered = true;
+    } else {
+      message.delivered = false;
+    }
+
+    // Emit back to sender with delivery status
+    socket.emit("messageDelivered", message);
+  });
+
+  // Read receipt
+  socket.on("messageRead", ({ chatId, senderId, receiverId }) => {
+    const receiverSocketId = onlineUsers.get(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("messageRead", { chatId, senderId });
+    }
+  });
+
+  // Handle disconnect
   socket.on("disconnect", () => {
-    console.log("Client disconnected");
+    console.log("❌ Socket disconnected:", socket.id);
+    for (let [userId, sockId] of onlineUsers.entries()) {
+      if (sockId === socket.id) {
+        onlineUsers.delete(userId);
+        break;
+      }
+    }
   });
 });
 

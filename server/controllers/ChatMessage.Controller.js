@@ -6,10 +6,7 @@ const asyncHandler = require("../utils/asyncHandler");
 exports.getAllMessages = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
 
-  const messages = await ChatMessage.find({ chatId })
-    .populate("sender", "fullName email")
-    .sort({ createdAt: -1 });
-
+  const messages = await ChatMessage.find({ chatId });
   res.status(200).json({
     success: true,
     data: messages,
@@ -33,7 +30,7 @@ exports.sendMessage = asyncHandler(async (req, res) => {
     text,
   });
 
-  await newMessage.populate("sender", "fullName email");
+  await newMessage;
 
   res.status(201).json({
     success: true,
