@@ -1,28 +1,19 @@
-import {
-  ChevronRight,
-  FileText,
-  MessageSquare,
-  PlusCircle,
-  Settings,
-  User,
-} from "lucide-react";
+import { FileText, MessageSquare, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { BusinessIdeaCard } from "../components/common/BusinessIdeaCard";
-import { Button } from "../components/ui/Button";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { getBusinessIdeasByUserId } from "../services/businessIdeaService";
 
 export const EntrepreneurDashboardPage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { isAuthenticated, user, loading } = useSelector((state) => state.auth);
 
   const [businessIdeas, setBusinessIdeas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Redirect if not authenticated
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !loading) {
       navigate("/login", { replace: true });
       return;
     }

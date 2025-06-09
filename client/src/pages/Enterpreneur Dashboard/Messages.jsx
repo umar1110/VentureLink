@@ -17,6 +17,7 @@ const MessagesPage = () => {
   const [showNewChat, setShowNewChat] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
+
   const scrollRef = useRef();
 
   useEffect(() => {

@@ -93,7 +93,6 @@ io.on("connection", (socket) => {
         break;
       }
     }
-
     // Notify all clients of updated online users
     io.emit("getOnlineUsers", Array.from(onlineUsers.keys()));
   });

@@ -39,7 +39,6 @@ function App() {
   useEffect(() => {
     if (user?._id) {
       // socket.connect(); // 🔌 Connect socket
-      prompt("Please enter your name:"); // Prompt for user name
       socket.emit("addUser", user._id); // 👤 Register as online
     }
 
@@ -70,6 +69,7 @@ function App() {
                 <Route path="" element={<MyIdeas />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="messages" element={<MessagesPage />} />
+                {/* <Route path="submit-idea" element={<SubmitIdeaPage />} /> */}
               </Route>
               <Route
                 path="/investor-dashboard"
