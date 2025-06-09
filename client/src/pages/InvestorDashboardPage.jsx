@@ -1,7 +1,7 @@
 import { Bell, MessageSquare, Settings, TrendingUp, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Input } from "../components/ui/Input";
 import { Select } from "../components/ui/Select";
 import { getRankedBusinessIdeas } from "../services/businessIdeaService";
@@ -122,13 +122,20 @@ export const InvestorDashboardPage = () => {
 
               <div className="border-t border-gray-200">
                 <nav className="flex-1">
-                  <a
-                    href="#"
-                    className="flex items-center py-3 px-6 bg-primary-50 border-l-4 border-primary-500 text-primary-700 hover:bg-primary-50 transition-colors"
+                  <NavLink
+                    end
+                    to="/investor-dashboard"
+                    className={({ isActive }) =>
+                      `flex items-center py-3 px-6 transition-colors ${
+                        isActive
+                          ? "bg-primary-50 border-l-4 border-primary-500 text-primary-700 hover:bg-primary-50"
+                          : "hover:bg-gray-50"
+                      }`
+                    }
                   >
                     <TrendingUp className="h-5 w-5 mr-3" />
-                    <span className="text-sm font-medium">Discover Ideas</span>
-                  </a>
+                    <span className="text-sm">Discover Ideas</span>
+                  </NavLink>
                   <a
                     href="#"
                     className="flex items-center py-3 px-6 text-gray-600 hover:bg-gray-50 transition-colors"
@@ -139,7 +146,7 @@ export const InvestorDashboardPage = () => {
                       5
                     </span>
                   </a>
-                  <a
+                  {/* <a
                     href="#"
                     className="flex items-center py-3 px-6 text-gray-600 hover:bg-gray-50 transition-colors"
                   >
@@ -148,21 +155,27 @@ export const InvestorDashboardPage = () => {
                     <span className="ml-auto bg-primary-100 text-primary-600 py-0.5 px-2 rounded-full text-xs font-medium">
                       2
                     </span>
-                  </a>
-                  <Link
+                  </a> */}
+                  <NavLink
                     to="/investor-dashboard/profile"
-                    className="flex items-center py-3 px-6 text-gray-600 hover:bg-gray-50 transition-colors"
+                    className={({ isActive }) =>
+                      `flex items-center py-3 px-6 transition-colors ${
+                        isActive
+                          ? "bg-primary-50 border-l-4 border-primary-500 text-primary-700 hover:bg-primary-50"
+                          : "hover:bg-gray-50"
+                      }`
+                    }
                   >
                     <User className="h-5 w-5 mr-3" />
                     <span className="text-sm font-medium">Profile</span>
-                  </Link>
-                  <a
+                  </NavLink>
+                  {/* <a
                     href="#"
                     className="flex items-center py-3 px-6 text-gray-600 hover:bg-gray-50 transition-colors"
                   >
                     <Settings className="h-5 w-5 mr-3" />
                     <span className="text-sm font-medium">Settings</span>
-                  </a>
+                  </a> */}
                 </nav>
               </div>
             </div>
