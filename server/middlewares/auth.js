@@ -1,4 +1,4 @@
-const User = require("../models/User.Model");
+const UserModel = require("../models/User.Model");
 const ApiError = require("../utils/ApiError");
 const asyncHandler = require("../utils/asyncHandler");
 const jwt = require("jsonwebtoken");
@@ -11,9 +11,14 @@ const isAuthenticatedUser = asyncHandler(async (req, res, next) => {
 
   const decodedDataID = jwt.verify(token, process.env.JWT_SECRET);
   try {
-    req.user = await User.findById(decodedDataID.id);
+    user = await UserModel.findById(decodedDataID.id);
+    console.log("User authenticated:", user);
+    if (!user) {
+      throw new ApiError(401, "User Not Found, Please Login Again.");
+    }
+    req.user = user;
   } catch (err) {
-    return next(new Error("User Not Exists , As per in ccokies chnaged"));
+    return next(err);
     // ***************** remove the cookie info from message *************
   }
 

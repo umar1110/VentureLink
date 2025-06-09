@@ -15,7 +15,11 @@ app.use(
 
 // Importing routes
 const userRoutes = require("./routes/User.Route");
+const chatRoutes = require("./routes/Chat.Route");
+const messageRoutes = require("./routes/ChatMessage.Route.js");
 app.use("/api/v1", userRoutes);
+app.use("/api/v1", chatRoutes);
+app.use("/api/v1", messageRoutes);
 
 // Importing Middleware
 const errorMiddleware = require("./middlewares/error.js");
