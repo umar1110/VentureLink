@@ -24,6 +24,7 @@ import { useDispatch } from "react-redux";
 import { fetchMe } from "./redux/slices/authSlice";
 import DiscoverIdeas from "./pages/InvesterDashbord/DiscoverIdeas";
 import Profile from "./pages/InvesterDashbord/ProfilePage";
+import MyIdeas from "./pages/Enterpreneur Dashboard/MyIdeas";
 
 function App() {
   const dispatch = useDispatch();
@@ -48,7 +49,10 @@ function App() {
               <Route
                 path="/entrepreneur-dashboard"
                 element={<EntrepreneurDashboardPage />}
-              />
+              >
+                <Route path="" element={<MyIdeas />} />
+                <Route path="profile" element={<Profile />} />
+              </Route>
               <Route
                 path="/investor-dashboard"
                 element={<InvestorDashboardPage />}

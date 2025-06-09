@@ -8,7 +8,7 @@ import { getRankedBusinessIdeas } from "../services/businessIdeaService";
 
 export const InvestorDashboardPage = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
   const [businessIdeas, setBusinessIdeas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
@@ -17,7 +17,7 @@ export const InvestorDashboardPage = () => {
 
   useEffect(() => {
     // Redirect if not authenticated
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !loading) {
       navigate("/login", { replace: true });
       return;
     }
