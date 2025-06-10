@@ -1,18 +1,9 @@
-import React, { useEffect, useState } from "react";
-import {
-  Bell,
-  ChevronRight,
-  ListFilter,
-  MessageSquare,
-  Search,
-  Settings,
-  TrendingUp,
-  User,
-} from "lucide-react";
-import { BusinessIdeaCard } from "../../components/common/BusinessIdeaCard";
-import { getRankedBusinessIdeas } from "../../services/businessIdeaService";
-import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { ListFilter, Search, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { BusinessIdeaCard } from "../../components/common/BusinessIdeaCard";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
@@ -40,8 +31,8 @@ function DiscoverIdeas() {
   const filteredIdeas = businessIdeas.filter((idea) => {
     const matchesSearch =
       searchTerm === "" ||
-      idea.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      idea.description.toLowerCase().includes(searchTerm.toLowerCase());
+      idea.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      idea.businessDescription.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesIndustry =
       selectedIndustry === "" || idea.industry === selectedIndustry;
@@ -64,8 +55,11 @@ function DiscoverIdeas() {
     const fetchIdeas = async () => {
       try {
         setIsLoading(true);
-        const ideas = await getRankedBusinessIdeas();
-        setBusinessIdeas(ideas);
+        const { data } = await axios.get("http://localhost:4000/api/v1/ideas", {
+          withCredentials: true,
+        });
+        setBusinessIdeas(data.data);
+        console.log("Fetched Business Ideas:", data.data);
       } catch (err) {
         console.error("Error fetching business ideas:", err);
       } finally {
@@ -91,7 +85,7 @@ function DiscoverIdeas() {
           </p>
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4">
-          <Link to="/ranked-ideas">
+          {/* <Link to="/ranked-ideas">
             <Button
               variant="outline"
               leftIcon={<TrendingUp className="h-5 w-5" />}
@@ -99,7 +93,7 @@ function DiscoverIdeas() {
             >
               View All Ranked Ideas
             </Button>
-          </Link>
+          </Link> */}
           <Button
             leftIcon={<ListFilter className="h-5 w-5" />}
             onClick={toggleFilters}
@@ -192,7 +186,7 @@ function DiscoverIdeas() {
       </div>
 
       {/* Recent Activity */}
-      <div className="mt-6 bg-white shadow rounded-lg overflow-hidden">
+      {/* <div className="mt-6 bg-white shadow rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-lg font-medium text-gray-900">Recent Activity</h2>
           <a
@@ -261,7 +255,7 @@ function DiscoverIdeas() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

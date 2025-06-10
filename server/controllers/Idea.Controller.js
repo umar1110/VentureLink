@@ -11,7 +11,22 @@ exports.createIdea = asyncHandler(async (req, res) => {
 });
 
 exports.getAllIdeas = asyncHandler(async (req, res) => {
-  const ideas = await IdeaModel.find();
+  const ideas = await IdeaModel.find().populate({
+    path: "submitter",
+    select: "fullName _id ",
+  });
+
+  res.status(200).json({
+    success: true,
+    data: ideas,
+  });
+});
+
+exports.getMyIdeas = asyncHandler(async (req, res) => {
+  const ideas = await IdeaModel.find({ submitter: req.user._id }).populate({
+    path: "submitter",
+    select: "fullName _id ",
+  });
 
   res.status(200).json({
     success: true,

@@ -61,7 +61,8 @@ export const SubmitIdeaPage = () => {
       dataToBackend.problemImportance = 10;
       dataToBackend.solutionUniqueness = 10;
       dataToBackend.businessModelClarity = 10;
-
+      // Model Integration
+      dataToBackend.successRate = 90;
       const response = await axios.post(
         "http://localhost:4000/api/v1/idea/create",
         dataToBackend,
@@ -74,7 +75,7 @@ export const SubmitIdeaPage = () => {
       console.log("Response from backend:", response.data);
 
       toast.success("Business idea submitted successfully!");
-      // navigate("/ideas", { replace: true });
+      navigate("/entrepreneur-dashboard", { replace: true });
     } catch (error) {
       toast.dismiss();
       toast.error("An error occurred while submitting your idea.");

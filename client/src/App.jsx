@@ -79,7 +79,7 @@ function App() {
                 <Route path="profile" element={<Profile />} />
                 <Route path="messages" element={<MessagesPage />} />s{" "}
               </Route>
-              <Route path="/ranked-ideas" element={<RankedIdeasPage />} />
+              {/* <Route path="/ranked-ideas" element={<RankedIdeasPage />} /> */}
               <Route path="/ideas/:id" element={<IdeaDetailsPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
