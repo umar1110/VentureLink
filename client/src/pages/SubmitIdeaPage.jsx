@@ -7,8 +7,9 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Select } from "../components/ui/Select";
 import { Textarea } from "../components/ui/Textarea";
+import { toast } from "react-toastify";
 import { submitBusinessIdea } from "../services/businessIdeaService";
-
+import axios from "axios";
 export const SubmitIdeaPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -37,15 +38,50 @@ export const SubmitIdeaPage = () => {
 
   const onSubmit = async (data) => {
     if (!user) return;
-
     try {
-      // Submit business idea to service
-      await submitBusinessIdea(user.id, user.name, data);
+      toast.loading("Submitting your business idea...");
+      const dataToBackend = {
+        businessName: data.title,
+        industry: data.industry,
+        businessDescription: data.description,
+        targetMarket: data.targetMarket,
+        targetMarketSize: data.targetMarketSize,
+        uniqueSellingProposition: data.uniqueSellingProposition,
+        problem: data.problem,
+        solution: data.solution,
+        businessModel: data.businessModel,
+        fundingRequired: data.fundingRequired,
+        equityOffered: data.equityOffered,
+        foundedYear: data.foundedYear,
+        uspStrength: data.uspStrengthRate,
+        teamExperience: data.teamExperience,
+        targetMarketSize: data.targetMarketSize,
+      };
 
-      // Navigate to entrepreneur dashboard
-      navigate("/entrepreneur-dashboard");
-    } catch (err) {
-      console.error("Error submitting idea:", err);
+      dataToBackend.problemImportance = 10;
+      dataToBackend.solutionUniqueness = 10;
+      dataToBackend.businessModelClarity = 10;
+
+      const response = await axios.post(
+        "http://localhost:4000/api/v1/idea/create",
+        dataToBackend,
+        {
+          withCredentials: true,
+        }
+      );
+      toast.dismiss();
+
+      console.log("Response from backend:", response.data);
+
+      toast.success("Business idea submitted successfully!");
+      // navigate("/ideas", { replace: true });
+    } catch (error) {
+      toast.dismiss();
+      toast.error("An error occurred while submitting your idea.");
+      console.error(
+        "Error submitting idea:",
+        error.response?.data?.message || error.message
+      );
     }
   };
 
@@ -244,6 +280,7 @@ export const SubmitIdeaPage = () => {
                   <Input
                     label="Equity Offered (%)"
                     type="number"
+                    step="0.01"
                     error={errors.equityOffered?.message}
                     {...register("equityOffered", {
                       required: "Equity percentage is required",
