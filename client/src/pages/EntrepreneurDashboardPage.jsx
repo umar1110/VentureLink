@@ -92,9 +92,6 @@ export const EntrepreneurDashboardPage = () => {
                   >
                     <MessageSquare className="h-5 w-5 mr-3" />
                     <span className="text-sm font-medium">Messages</span>
-                    <span className="ml-auto bg-primary-100 text-primary-600 py-0.5 px-2 rounded-full text-xs font-medium">
-                      3
-                    </span>
                   </NavLink>
                   <NavLink
                     to="/entrepreneur-dashboard/profile"
