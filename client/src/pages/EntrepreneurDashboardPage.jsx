@@ -114,7 +114,7 @@ export const EntrepreneurDashboardPage = () => {
             </div>
 
             {/* Stats */}
-            <div className="mt-6 bg-white shadow rounded-lg overflow-hidden">
+            {/* <div className="mt-6 bg-white shadow rounded-lg overflow-hidden">
               <div className="p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Your Stats
@@ -152,7 +152,7 @@ export const EntrepreneurDashboardPage = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Main Content */}
