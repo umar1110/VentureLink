@@ -33,3 +33,22 @@ exports.getMyIdeas = asyncHandler(async (req, res) => {
     data: ideas,
   });
 });
+
+exports.getIdeaById = asyncHandler(async (req, res) => {
+  const idea = await IdeaModel.findById(req.params.id).populate({
+    path: "submitter",
+    select: "fullName _id ",
+  });
+
+  if (!idea) {
+    return res.status(404).json({
+      success: false,
+      message: "Idea not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    data: idea,
+  });
+});
