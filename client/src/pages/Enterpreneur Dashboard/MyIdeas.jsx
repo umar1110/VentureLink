@@ -39,6 +39,13 @@ function MyIdeas() {
   const pendingIdeas = MyIdeas.filter((idea) => idea.status === "pending");
   return (
     <div className="lg:col-span-3">
+      <div className="flex justify-end ">
+        <Link to="/submit-idea">
+          <Button leftIcon={<PlusCircle className="h-5 w-5" />}>
+            Submit New Idea
+          </Button>
+        </Link>
+      </div>
       {/* Ideas List */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">

@@ -70,6 +70,7 @@ export const SubmitIdeaPage = () => {
           withCredentials: true,
         }
       );
+
       toast.dismiss();
 
       console.log("Response from backend:", response.data);

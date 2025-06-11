@@ -1,34 +1,44 @@
-import pickle
+import pandas as pd
 import numpy as np
 from flask import Flask, request, jsonify
+import joblib
 
 app = Flask(__name__)
 
-# Load the pre-trained model
-with open('rf_success_model_balanced.pkl', 'rb') as f:
-    model = pickle.load(f)
+# Load the newly saved model
+model = joblib.load('rf_success_model_balanced.pkl')
 
-# Route for prediction
 @app.route('/predict', methods=['POST'])
 def predict():
     # Parse the incoming JSON request
     data = request.get_json()
 
-    # Extract features from the incoming data (make sure this matches your model's features)
-    features = np.array([data['features']])
+    # Extract features from the request
+    features = data.get('features')
+    
+    if not features:
+        return jsonify({'error': 'No features provided in the request body'}), 400
 
-    # Predict using the loaded model
-    prediction = model.predict(features)
+    # Extract column names from the keys of the 'features' dictionary
+    column_names = list(features.keys())
 
-    # Return the result as JSON
-    return jsonify({'prediction': prediction.tolist()})
+    # Convert the features dictionary to a DataFrame
+    features_df = pd.DataFrame([features], columns=column_names)
 
-# Test Route
-@app.route('/test', methods=['GET'])
-def test():
-    return jsonify({'message': 'Test route is working!'})
+    # Ensure the number of features is correct (match with training data columns)
+    expected_feature_count = len(column_names)  # This should match the number of features the model was trained on
+    if features_df.shape[1] != expected_feature_count:
+        return jsonify({'error': f'Expected {expected_feature_count} features, but got {features_df.shape[1]}'}), 400
+
+    # Predict probabilities using the model
+    prob_success = model.predict_proba(features_df)[:, 1]  # Get the probability for class 1 (success)
+    pred_class = int(prob_success >= 0.4)  # Set threshold for success (e.g., 0.4)
+
+    # Return the result as JSON with probability and predicted class
+    return jsonify({
+        'prediction': pred_class,
+        'success_probability': prob_success.tolist()
+    })
 
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=8000)
-
-
