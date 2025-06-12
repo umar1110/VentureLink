@@ -57,12 +57,35 @@ export const SubmitIdeaPage = () => {
         teamExperience: data.teamExperience,
         targetMarketSize: data.targetMarketSize,
       };
+      dataToBackend.problemImportance = Math.floor(Math.random() * 10 + 1); // Random value between 1 and 10
+      dataToBackend.solutionUniqueness = Math.floor(Math.random() * 10 + 1); // Random value between 1 and 10
+      dataToBackend.businessModelClarity = Math.floor(Math.random() * 10 + 1); // Random value between 1 and 10
 
-      dataToBackend.problemImportance = 10;
-      dataToBackend.solutionUniqueness = 10;
-      dataToBackend.businessModelClarity = 10;
-      // Model Integration
-      dataToBackend.successRate = 90;
+      const features = {
+        category_code: data.industry,
+        funding_required: data.fundingRequired,
+        founded_year: data.foundedYear,
+        problem_importance: dataToBackend.problemImportance,
+        solution_uniqueness: dataToBackend.solutionUniqueness,
+        usp_strength: data.uspStrengthRate,
+        business_model_clarity: dataToBackend.businessModelClarity,
+        team_experience_years: data.teamExperience,
+        equity_offered: data.equityOffered,
+        target_market_size: data.targetMarketSize,
+      };
+      const config = {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        },
+      };
+      const modelResponse = await axios.post("http://localhost:8000/predict", {
+        features,
+      });
+      dataToBackend.successRate = modelResponse.data.success_probability * 100;
+
+      console.log("Model response:", modelResponse.data);
+      console.log("Data to backend:", dataToBackend);
       const response = await axios.post(
         "http://localhost:4000/api/v1/idea/create",
         dataToBackend,
@@ -310,9 +333,9 @@ export const SubmitIdeaPage = () => {
                   />
 
                   <Input
-                    label="USP Strength Rate (1-5)"
+                    label="USP Strength Rate (1-10)"
                     type="number"
-                    max={5}
+                    max={10}
                     error={errors.uspStrengthRate?.message}
                     {...register("uspStrengthRate", {
                       required: "USP strength rate is required",
@@ -321,7 +344,7 @@ export const SubmitIdeaPage = () => {
                         message: "Minimum strength rate is 1",
                       },
                       max: {
-                        value: 5,
+                        value: 10,
                         message: "Maximum strength rate is 5",
                       },
                     })}

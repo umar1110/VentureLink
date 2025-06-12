@@ -2,9 +2,12 @@ import pandas as pd
 import numpy as np
 from flask import Flask, request, jsonify
 import joblib
+from flask_cors import CORS
+
 
 app = Flask(__name__)
-
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+ 
 # Load the newly saved model
 model = joblib.load('rf_success_model_balanced.pkl')
 
