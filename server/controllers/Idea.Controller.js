@@ -11,10 +11,14 @@ exports.createIdea = asyncHandler(async (req, res) => {
 });
 
 exports.getAllIdeas = asyncHandler(async (req, res) => {
-  const ideas = await IdeaModel.find().populate({
-    path: "submitter",
-    select: "fullName _id ",
-  });
+  // Sorted by success rate in descending order
+
+  const ideas = await IdeaModel.find()
+    .populate({
+      path: "submitter",
+      select: "fullName _id ",
+    })
+    .sort({ successRate: -1 });
 
   res.status(200).json({
     success: true,
@@ -23,10 +27,12 @@ exports.getAllIdeas = asyncHandler(async (req, res) => {
 });
 
 exports.getMyIdeas = asyncHandler(async (req, res) => {
-  const ideas = await IdeaModel.find({ submitter: req.user._id }).populate({
-    path: "submitter",
-    select: "fullName _id ",
-  });
+  const ideas = await IdeaModel.find({ submitter: req.user._id })
+    .populate({
+      path: "submitter",
+      select: "fullName _id ",
+    })
+    .sort({ successRate: -1 });
 
   res.status(200).json({
     success: true,
