@@ -7,6 +7,15 @@ const IdeaSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    status: {
+      type: String,
+      default: "pending",
+      enum: ["pending", "assigned"],
+    },
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     businessName: {
       type: String,
       required: true,

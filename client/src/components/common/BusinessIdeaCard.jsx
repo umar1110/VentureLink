@@ -1,6 +1,7 @@
 import { CheckCircle, Clock, TrendingUp, Users, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/Button";
+import axios from "axios";
 
 export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
   const formatCurrency = (amount) => {
@@ -63,6 +64,18 @@ export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
     );
   };
 
+  const handleStatusChange = async (event) => {
+    const newStatus = event.target.value;
+    try {
+      const response = await axios.put(
+        "http://localhost:4000/api/v1//status/change"
+      );
+      console.log("Status changed successfully:", response.data);
+    } catch (error) {
+      console.error("Error changing status:", error);
+    }
+    console.log("New status:", newStatus);
+  };
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 transition-all hover:shadow-lg">
       <div className="p-6">
@@ -75,17 +88,24 @@ export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
               {idea.industry} • {formatDate(idea.createdAt)}
             </p>
           </div>
+          <div className="flex flex-col space-y-2">
+            {"pending" && (
+              <div
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(
+                  "evaluated"
+                )}`}
+              >
+                {getStatusIcon("connected")}
+                <span className="ml-1 capitalize">{idea.status}</span>
+              </div>
+            )}
 
-          {/* {idea.status && (
-            <div
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(
-                idea.status
-              )}`}
-            >
-              {getStatusIcon(idea.status)}
-              <span className="ml-1 capitalize">{idea.status}</span>
-            </div>
-          )} */}
+            <select onChange={handleStatusChange} name="status" id="status">
+              <option value="pending">Pending</option>
+              <option value="evaluated">Evaluated</option>
+              <option value="connected">Connected</option>
+            </select>
+          </div>
         </div>
 
         <p className="text-gray-700 mb-4 line-clamp-2">

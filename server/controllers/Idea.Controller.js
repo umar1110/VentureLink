@@ -1,6 +1,6 @@
 const IdeaModel = require("../models/Idea.Model");
 const asyncHandler = require("../utils/asyncHandler");
-
+const UserModel = require("../models/User.Model");
 exports.createIdea = asyncHandler(async (req, res) => {
   const idea = await IdeaModel.create({ ...req.body, submitter: req.user._id });
 
@@ -54,6 +54,32 @@ exports.getIdeaById = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json({
+    success: true,
+    data: idea,
+  });
+});
+
+exports.changeIdeaStatus = asyncHandler(async (req, res) => {
+  const { email, ideaId, status } = req.body;
+
+  const user = UserModel.findOne({ email });
+
+  if (!user) {
+    throw new Error("User not found with this email");
+  }
+
+  const idea = IdeaModel.findById(ideaId);
+
+  if (!idea) {
+    throw new Error("Idea not found");
+  }
+
+  idea.status = status;
+  idea.assignedTo = user._id;
+
+  await idea.save();
+
+  return res.status(200).json({
     success: true,
     data: idea,
   });
