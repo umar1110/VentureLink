@@ -41,10 +41,16 @@ exports.getMyIdeas = asyncHandler(async (req, res) => {
 });
 
 exports.getIdeaById = asyncHandler(async (req, res) => {
-  const idea = await IdeaModel.findById(req.params.id).populate({
-    path: "submitter",
-    select: "fullName _id  profilePicture",
-  });
+  const idea = await IdeaModel.findById(req.params.id).populate([
+    {
+      path: "submitter",
+      select: "fullName _id profilePicture email",
+    },
+    {
+      path: "assignedTo",
+      select: "fullName _id profilePicture email",
+    },
+  ]);
 
   if (!idea) {
     return res.status(404).json({

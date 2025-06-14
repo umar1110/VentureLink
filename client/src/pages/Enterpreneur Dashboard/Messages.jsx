@@ -6,6 +6,10 @@ import { io } from "socket.io-client";
 import { socket } from "../../socket";
 
 const MessagesPage = () => {
+  // Extract query   parameters
+  const queryParams = new URLSearchParams(window.location.search);
+  const chat = queryParams.get("chat"); // ?chat=John
+
   const { user } = useSelector((state) => state.auth);
   const currentUserId = user?._id;
   const [chats, setChats] = useState([]);
@@ -38,10 +42,39 @@ const MessagesPage = () => {
         `http://localhost:4000/api/v1/chats/${currentUserId}`,
         { withCredentials: true }
       );
-      setChats(res.data.data);
+      const fetchedChats = res.data.data;
+      setChats(fetchedChats);
+
+      if (chat) {
+        const existingChat = fetchedChats.find((c) =>
+          c.participants.some(
+            (p) => p._id !== currentUserId && p.email === chat
+          )
+        );
+
+        if (existingChat) {
+          setSelectedChat(existingChat);
+          fetchMessages(existingChat._id);
+        } else {
+          try {
+            const createRes = await axios.post(
+              "http://localhost:4000/api/v1/chat/create",
+              { email: chat },
+              { withCredentials: true }
+            );
+            const newChat = createRes.data.data;
+            setChats((prev) => [...prev, newChat]);
+            setSelectedChat(newChat);
+            fetchMessages(newChat._id);
+          } catch (error) {
+            toast.error(error.response?.data?.message || "Error creating chat");
+          }
+        }
+      }
     };
+
     fetchChats();
-  }, [currentUserId]);
+  }, [currentUserId, chat]);
 
   const fetchMessages = async (chatId) => {
     const res = await axios.get(

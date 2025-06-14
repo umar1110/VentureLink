@@ -19,7 +19,7 @@ export const BusinessIdeaCard = ({
     }).format(amount);
   };
 
-  const statuses = ["pending", "evaluated", "connected"];
+  const statuses = ["pending", "evaluated"];
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -76,7 +76,7 @@ export const BusinessIdeaCard = ({
     const newStatus = event.target.value;
     try {
       let email = null;
-      if (newStatus == "connected") {
+      if (newStatus == "evaluated") {
         email = prompt("Enter investor's email:");
         // prompt(email);
         if (!email) {

@@ -6,8 +6,6 @@ import {
   DollarSign,
   MessageSquare,
   Percent,
-  Share2,
-  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -171,14 +169,21 @@ export const IdeaDetailsPage = () => {
                     </span>
                   )} */}
                 </div>
-                <h1 className="text-3xl font-bold">{idea.title}</h1>
+                <h1 className="text-3xl font-bold">{idea.businessName}</h1>
                 <p className="mt-2 text-primary-100">
                   By {idea.submitter?.fullName} • Submitted on{" "}
                   {formatDate(idea.createdAt)}
                 </p>
+                {idea.status === "evaluated" && (
+                  <>
+                    <p className="mt-2 text-primary-100">
+                      Idea evaluated By {idea.assignedTo?.email}
+                    </p>
+                  </>
+                )}
               </div>
 
-              {idea.score && (
+              {idea.successRate && (
                 <div className="mt-4 md:mt-0 flex items-center bg-white bg-opacity-20 rounded-lg px-4 py-2">
                   <span className="text-sm font-medium mr-2">
                     Evaluation Score:
@@ -295,23 +300,25 @@ export const IdeaDetailsPage = () => {
                 </div>
 
                 {/* Actions */}
-                {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">
-                    Actions
-                  </h3>
+                {isInvestor && !idea.assignedTo && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      Actions
+                    </h3>
 
-                  <div className="space-y-3">
-                    {isInvestor && (
-                      <Button
-                        variant="primary"
-                        leftIcon={<MessageSquare className="h-5 w-5" />}
-                        fullWidth
+                    <div className="space-y-3">
+                      <Link
+                        to={`/investor-dashboard/messages?chat=${idea.submitter?.email}`}
                       >
-                        Contact Entrepreneur
-                      </Button>
-                    )}
-
-                    {isCreator && idea.status === "pending" && (
+                        <Button
+                          variant="primary"
+                          leftIcon={<MessageSquare className="h-5 w-5" />}
+                          fullWidth
+                        >
+                          Contact Entrepreneur
+                        </Button>
+                      </Link>
+                      {/* {isCreator && idea.status === "pending" && (
                       <Button variant="primary" fullWidth>
                         Edit Idea
                       </Button>
@@ -329,9 +336,10 @@ export const IdeaDetailsPage = () => {
                       <Button variant="outline" fullWidth>
                         Save for Later
                       </Button>
-                    )}
+                    )} */}
+                    </div>
                   </div>
-                </div> */}
+                )}
 
                 {/* About the Entrepreneur */}
                 {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
