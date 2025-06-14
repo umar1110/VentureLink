@@ -1,31 +1,29 @@
-import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { useEffect } from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { AuthProvider } from "./contexts/AuthContext";
 // Layout Components
-import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
-import { ChatbotWidget } from "./components/common/ChatbotWidget";
+import { Navbar } from "./components/layout/Navbar";
 
 // Pages
-import { HomePage } from "./pages/HomePage";
-import { AboutPage } from "./pages/AboutPage";
-import { HowItWorksPage } from "./pages/HowItWorksPage";
-import { ContactPage } from "./pages/ContactPage";
-import { SignUpPage } from "./pages/SignUpPage";
-import { LoginPage } from "./pages/LoginPage";
-import { SubmitIdeaPage } from "./pages/SubmitIdeaPage";
-import { EntrepreneurDashboardPage } from "./pages/EntrepreneurDashboardPage";
-import { InvestorDashboardPage } from "./pages/InvestorDashboardPage";
-import { RankedIdeasPage } from "./pages/RankedIdeasPage";
-import { IdeaDetailsPage } from "./pages/IdeaDetailsPage";
-import { NotFoundPage } from "./pages/NotFoundPage";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMe } from "./redux/slices/authSlice";
+import { AboutPage } from "./pages/AboutPage";
+import { ContactPage } from "./pages/ContactPage";
+import MessagesPage from "./pages/Enterpreneur Dashboard/Messages";
+import MyIdeas from "./pages/Enterpreneur Dashboard/MyIdeas";
+import { EntrepreneurDashboardPage } from "./pages/EntrepreneurDashboardPage";
+import { HomePage } from "./pages/HomePage";
+import { HowItWorksPage } from "./pages/HowItWorksPage";
+import { IdeaDetailsPage } from "./pages/IdeaDetailsPage";
 import DiscoverIdeas from "./pages/InvesterDashbord/DiscoverIdeas";
 import Profile from "./pages/InvesterDashbord/ProfilePage";
-import MyIdeas from "./pages/Enterpreneur Dashboard/MyIdeas";
-import MessagesPage from "./pages/Enterpreneur Dashboard/Messages";
+import { InvestorDashboardPage } from "./pages/InvestorDashboardPage";
+import { LoginPage } from "./pages/LoginPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { SignUpPage } from "./pages/SignUpPage";
+import { SubmitIdeaPage } from "./pages/SubmitIdeaPage";
+import { fetchMe } from "./redux/slices/authSlice";
 import { socket } from "./socket";
 
 function App() {
@@ -85,7 +83,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
-          <ChatbotWidget />
+          {/* <ChatbotWidget /> */}
         </div>
       </Router>
       <ToastContainer />

@@ -76,6 +76,7 @@ exports.changeIdeaStatus = asyncHandler(async (req, res) => {
       throw new Error("User not found with this email");
     }
   }
+
   const idea = await IdeaModel.findById(ideaId).populate({
     path: "submitter",
     select: "fullName _id  profilePicture profilePicture",
@@ -84,7 +85,9 @@ exports.changeIdeaStatus = asyncHandler(async (req, res) => {
   if (!idea) {
     throw new Error("Idea not found");
   }
-
+  if (!email) {
+    idea.assignedTo = null;
+  }
   idea.status = status;
   idea.assignedTo = user?._id || null;
 

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../ui/Button";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const BusinessIdeaCard = ({
   idea,
@@ -11,6 +11,14 @@ export const BusinessIdeaCard = ({
   statusChangeAvailable = false,
 }) => {
   const [ideaState, setIdeaState] = useState(idea);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [selectedDropdownStatus, setSelectedDropdownStatus] = useState(
+    idea.status
+  );
+
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [investorEmail, setInvestorEmail] = useState("");
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -72,26 +80,15 @@ export const BusinessIdeaCard = ({
     );
   };
 
-  const handleStatusChange = async (event) => {
-    const newStatus = event.target.value;
+  const updateStatus = async (status, email = null) => {
     try {
-      let email = null;
-      if (newStatus == "evaluated") {
-        email = prompt("Enter investor's email:");
-        // prompt(email);
-        if (!email) {
-          event.target.value = ideaState.status;
-          return;
-        }
-      }
-
-      toast.loading("Changing status.....");
+      toast.loading("Changing status...");
       const response = await axios.put(
         "http://localhost:4000/api/v1/status/change",
         {
           email,
           ideaId: ideaState._id,
-          status: newStatus,
+          status,
         },
         { withCredentials: true }
       );
@@ -101,13 +98,62 @@ export const BusinessIdeaCard = ({
     } catch (error) {
       toast.dismiss();
       toast.error(error?.response?.data?.message || "Something went wrong");
-      event.target.value = ideaState.status;
-      console.error("Error changing status:", error);
     }
-    console.log("New status:", newStatus);
   };
+
+  const handleStatusChange = (event) => {
+    const newStatus = event.target.value;
+    if (newStatus === "evaluated") {
+      setSelectedStatus(newStatus);
+      setShowEmailModal(true); // Open modal
+      return;
+    }
+    updateStatus(newStatus);
+  };
+  useEffect(() => {
+    setSelectedDropdownStatus(ideaState.status);
+  }, [ideaState.status]);
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 transition-all hover:shadow-lg">
+      {showEmailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              Enter Investor's Email
+            </h3>
+            <input
+              type="email"
+              className="w-full border px-3 py-2 rounded mb-4"
+              placeholder="example@email.com"
+              value={investorEmail}
+              onChange={(e) => setInvestorEmail(e.target.value)}
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowEmailModal(false);
+                  setInvestorEmail("");
+                  setSelectedDropdownStatus(ideaState.status); // Reset dropdown to original
+                }}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                onClick={() => {
+                  setShowEmailModal(false);
+                  updateStatus(selectedStatus, investorEmail);
+                  setInvestorEmail("");
+                }}
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="p-6">
         <div className="flex justify-between items-start">
           <div>
@@ -132,13 +178,33 @@ export const BusinessIdeaCard = ({
             )}
 
             {statusChangeAvailable && (
-              <select onChange={handleStatusChange} name="status" id="status">
-                <option value={ideaState.status}>{ideaState.status}</option>
-                {statuses.map((s) => {
-                  if (s != ideaState.status) {
-                    return <option value={s}>{s}</option>;
+              <select
+                value={selectedDropdownStatus}
+                onChange={(e) => {
+                  const newStatus = e.target.value;
+
+                  if (newStatus === "evaluated") {
+                    setSelectedStatus(newStatus);
+                    setShowEmailModal(true);
+                  } else {
+                    updateStatus(newStatus);
                   }
-                })}
+
+                  // Prevent visual change unless confirmed
+                  setSelectedDropdownStatus(ideaState.status);
+                }}
+                name="status"
+                id="status"
+                className="border rounded px-2 py-1 text-sm"
+              >
+                {[
+                  ideaState.status,
+                  ...statuses.filter((s) => s !== ideaState.status),
+                ].map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             )}
           </div>
