@@ -106,7 +106,11 @@ function MyIdeas() {
                 <div className="mb-8">
                   <div className="space-y-6">
                     {MyIdeas.map((idea) => (
-                      <BusinessIdeaCard key={idea._id} idea={idea} />
+                      <BusinessIdeaCard
+                        key={idea._id}
+                        idea={idea}
+                        statusChangeAvailable={true}
+                      />
                     ))}
                   </div>
                 </div>

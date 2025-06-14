@@ -2,8 +2,15 @@ import { CheckCircle, Clock, TrendingUp, Users, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/Button";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
-export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
+export const BusinessIdeaCard = ({
+  idea,
+  showEvaluation = false,
+  statusChangeAvailable = false,
+}) => {
+  const [ideaState, setIdeaState] = useState(idea);
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -12,6 +19,7 @@ export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
     }).format(amount);
   };
 
+  const statuses = ["pending", "evaluated", "connected"];
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -47,18 +55,18 @@ export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
   };
 
   const renderScore = () => {
-    if (!idea.successRate) return null;
+    if (!ideaState.successRate) return null;
 
     let scoreColor = "text-gray-700";
-    if (idea.successRate >= 90) scoreColor = "text-success-600";
-    else if (idea.successRate >= 70) scoreColor = "text-primary-600";
-    else if (idea.successRate >= 50) scoreColor = "text-warning-600";
+    if (ideaState.successRate >= 90) scoreColor = "text-success-600";
+    else if (ideaState.successRate >= 70) scoreColor = "text-primary-600";
+    else if (ideaState.successRate >= 50) scoreColor = "text-warning-600";
     else scoreColor = "text-error-600";
 
     return (
       <div className="flex items-center justify-center w-16 h-16 rounded-full border-4 border-gray-100">
         <span className={`text-xl font-bold ${scoreColor}`}>
-          {idea.successRate}
+          {ideaState.successRate}
         </span>
       </div>
     );
@@ -67,11 +75,33 @@ export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
   const handleStatusChange = async (event) => {
     const newStatus = event.target.value;
     try {
+      let email = null;
+      if (newStatus == "connected") {
+        email = prompt("Enter investor's email:");
+        // prompt(email);
+        if (!email) {
+          event.target.value = ideaState.status;
+          return;
+        }
+      }
+
+      toast.loading("Changing status.....");
       const response = await axios.put(
-        "http://localhost:4000/api/v1//status/change"
+        "http://localhost:4000/api/v1/status/change",
+        {
+          email,
+          ideaId: ideaState._id,
+          status: newStatus,
+        },
+        { withCredentials: true }
       );
-      console.log("Status changed successfully:", response.data);
+      toast.dismiss();
+      toast.success("Updated successfully");
+      setIdeaState(response.data.data);
     } catch (error) {
+      toast.dismiss();
+      toast.error(error?.response?.data?.message || "Something went wrong");
+      event.target.value = ideaState.status;
       console.error("Error changing status:", error);
     }
     console.log("New status:", newStatus);
@@ -82,52 +112,58 @@ export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
         <div className="flex justify-between items-start">
           <div>
             <h3 className="text-xl font-semibold text-gray-900 mb-1">
-              {idea.businessName}
+              {ideaState.businessName}
             </h3>
             <p className="text-sm text-gray-500 mb-3">
-              {idea.industry} • {formatDate(idea.createdAt)}
+              {ideaState.industry} • {formatDate(ideaState.createdAt)}
             </p>
           </div>
+
           <div className="flex flex-col space-y-2">
-            {"pending" && (
+            {ideaState.status && (
               <div
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(
-                  "evaluated"
+                  ideaState.status
                 )}`}
               >
-                {getStatusIcon("connected")}
-                <span className="ml-1 capitalize">{idea.status}</span>
+                {getStatusIcon(ideaState.status)}
+                <span className="ml-1 capitalize">{ideaState.status}</span>
               </div>
             )}
 
-            <select onChange={handleStatusChange} name="status" id="status">
-              <option value="pending">Pending</option>
-              <option value="evaluated">Evaluated</option>
-              <option value="connected">Connected</option>
-            </select>
+            {statusChangeAvailable && (
+              <select onChange={handleStatusChange} name="status" id="status">
+                <option value={ideaState.status}>{ideaState.status}</option>
+                {statuses.map((s) => {
+                  if (s != ideaState.status) {
+                    return <option value={s}>{s}</option>;
+                  }
+                })}
+              </select>
+            )}
           </div>
         </div>
 
         <p className="text-gray-700 mb-4 line-clamp-2">
-          {idea.businessDescription}
+          {ideaState.businessDescription}
         </p>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="col-span-1">
             <p className="text-sm text-gray-500">Funding Required</p>
             <p className="text-lg font-semibold text-gray-900">
-              {formatCurrency(idea.fundingRequired)}
+              {formatCurrency(ideaState.fundingRequired)}
             </p>
           </div>
           <div className="col-span-1">
             <p className="text-sm text-gray-500">Equity Offered</p>
             <p className="text-lg font-semibold text-gray-900">
-              {idea.equityOffered.$numberDecimal}%
+              {ideaState.equityOffered.$numberDecimal}%
             </p>
           </div>
         </div>
 
-        {idea.successRate && (
+        {ideaState.successRate && (
           <div className="mb-4 pt-4 border-t border-gray-200">
             <div className="flex justify-between items-center mb-2">
               <h4 className="text-md font-medium text-gray-800">
@@ -146,7 +182,7 @@ export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
                   <div
                     className="h-full bg-primary-500"
                     style={{
-                      width: `${idea.evaluationDetails.categories.marketFit}%`,
+                      width: `${ideaState.evaluationDetails.categories.marketFit}%`,
                     }}
                   ></div>
                 </div>
@@ -161,7 +197,7 @@ export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
                   <div
                     className="h-full bg-primary-500"
                     style={{
-                      width: `${idea.evaluationDetails.categories.innovation}%`,
+                      width: `${ideaState.evaluationDetails.categories.innovation}%`,
                     }}
                   ></div>
                 </div>
@@ -173,14 +209,18 @@ export const BusinessIdeaCard = ({ idea, showEvaluation = false }) => {
         <div className="mt-4 flex justify-between items-center">
           <div className="flex items-center">
             <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-              {idea.submitter?.fullName?.charAt(0).toUpperCase()}
+              <img
+                src={ideaState.submitter?.profilePicture?.url || ""}
+                alt=""
+                className="w-full h-full object-cover rounded-full "
+              />
             </div>
             <div className="ml-2 text-sm text-gray-500">
-              {idea.submitter.fullName}
+              {ideaState.submitter.fullName}
             </div>
           </div>
 
-          <Link to={`/ideas/${idea._id}`}>
+          <Link to={`/ideas/${ideaState._id}`}>
             <Button variant="outline" size="sm">
               View Details
             </Button>

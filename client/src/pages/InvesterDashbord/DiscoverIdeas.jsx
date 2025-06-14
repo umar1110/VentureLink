@@ -126,18 +126,6 @@ function DiscoverIdeas() {
       )}
       {/* Top Ranked Ideas */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-lg font-medium text-gray-900">
-            Top Ranked Business Ideas
-          </h2>
-          <Link
-            to="/ranked-ideas"
-            className="text-sm text-primary-600 hover:text-primary-500"
-          >
-            View all
-          </Link>
-        </div>
-
         <div className="p-6">
           {isLoading ? (
             <div className="text-center py-8">
@@ -178,7 +166,12 @@ function DiscoverIdeas() {
           ) : (
             <div className="space-y-6">
               {filteredIdeas.map((idea) => (
-                <BusinessIdeaCard key={idea.id} idea={idea} showEvaluation />
+                <BusinessIdeaCard
+                  key={idea.id}
+                  idea={idea}
+                  showEvaluation
+                  statusChangeAvailable={false}
+                />
               ))}
             </div>
           )}

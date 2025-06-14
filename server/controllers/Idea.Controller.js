@@ -16,7 +16,7 @@ exports.getAllIdeas = asyncHandler(async (req, res) => {
   const ideas = await IdeaModel.find()
     .populate({
       path: "submitter",
-      select: "fullName _id ",
+      select: "fullName _id  profilePicture",
     })
     .sort({ successRate: -1 });
 
@@ -30,7 +30,7 @@ exports.getMyIdeas = asyncHandler(async (req, res) => {
   const ideas = await IdeaModel.find({ submitter: req.user._id })
     .populate({
       path: "submitter",
-      select: "fullName _id ",
+      select: "fullName _id  profilePicture",
     })
     .sort({ successRate: -1 });
 
@@ -43,7 +43,7 @@ exports.getMyIdeas = asyncHandler(async (req, res) => {
 exports.getIdeaById = asyncHandler(async (req, res) => {
   const idea = await IdeaModel.findById(req.params.id).populate({
     path: "submitter",
-    select: "fullName _id ",
+    select: "fullName _id  profilePicture",
   });
 
   if (!idea) {
@@ -62,20 +62,25 @@ exports.getIdeaById = asyncHandler(async (req, res) => {
 exports.changeIdeaStatus = asyncHandler(async (req, res) => {
   const { email, ideaId, status } = req.body;
 
-  const user = UserModel.findOne({ email });
+  let user = null;
+  if (email) {
+    user = await UserModel.findOne({ email });
 
-  if (!user) {
-    throw new Error("User not found with this email");
+    if (!user) {
+      throw new Error("User not found with this email");
+    }
   }
-
-  const idea = IdeaModel.findById(ideaId);
+  const idea = await IdeaModel.findById(ideaId).populate({
+    path: "submitter",
+    select: "fullName _id  profilePicture profilePicture",
+  });
 
   if (!idea) {
     throw new Error("Idea not found");
   }
 
   idea.status = status;
-  idea.assignedTo = user._id;
+  idea.assignedTo = user?._id || null;
 
   await idea.save();
 

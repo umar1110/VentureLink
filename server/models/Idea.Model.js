@@ -10,7 +10,6 @@ const IdeaSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "pending",
-      enum: ["pending", "assigned"],
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
