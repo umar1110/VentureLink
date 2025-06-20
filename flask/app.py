@@ -3,14 +3,20 @@ import numpy as np
 from flask import Flask, request, jsonify
 import joblib
 from flask_cors import CORS
-
+import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
- 
-# Load the newly saved model
-model = joblib.load('rf_success_model_balanced.pkl')
+CORS(app, resources={r"/*": {"origins": ["http://localhost:4000", "http://localhost:5173"]}})
 
+# Load the newly saved model
+# Get the directory where the current script is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Build the full path to the model file
+model_path = os.path.join(BASE_DIR, 'rf_success_model_balanced.pkl')
+
+# Load the model
+model = joblib.load(model_path)
 @app.route('/predict', methods=['POST'])
 def predict():
     # Parse the incoming JSON request

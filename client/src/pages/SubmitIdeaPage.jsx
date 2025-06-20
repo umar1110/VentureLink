@@ -73,12 +73,7 @@ export const SubmitIdeaPage = () => {
         equity_offered: data.equityOffered,
         target_market_size: data.targetMarketSize,
       };
-      const config = {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-        },
-      };
+
       const modelResponse = await axios.post("http://localhost:8000/predict", {
         features,
       });
